@@ -1,0 +1,4 @@
+build/
+cget/
+.vs/
+.vscode/.cmaketools.json
