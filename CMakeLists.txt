@@ -11,6 +11,11 @@ endif()
 
 project(Game)
 
+set(GAME_PROJECT_NAME "_Result")
+set(GAME_EXECUTABLE_NAME "pong")
+set(GAME_RESOURCE_DIR "resources")
+
+
 file(GLOB_RECURSE Game_SOURCES "src/*.cpp")
 file(GLOB_RECURSE Game_HEADERS "src/*.h")
 
@@ -23,8 +28,18 @@ list(REMOVE_DUPLICATES Game_INCLUDE_DIRS)
 
 add_subdirectory(box2d)
 
+if(UNIX)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
 
 # Set version information in a config.h file
+if(WIN32)
+  set(Resource_PREFIX ${GAME_RESOURCE_DIR})
+endif()
+if(UNIX)
+  set(Resource_PREFIX "../share/${GAME_EXECUTABLE_NAME}/${GAME_RESOURCE_DIR}")
+endif()
+
 set(Game_VERSION_MAJOR 1)
 set(Game_VERSION_MINOR 0)
 configure_file(
@@ -33,10 +48,9 @@ configure_file(
   )
 include_directories("${PROJECT_BINARY_DIR}")
 
-# Define sources and executable
-set(GAME_PROJECT_NAME "_Result")
-set(GAME_EXECUTABLE_NAME "pong")
-# set 
+
+
+
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${GAME_PROJECT_NAME})
 include_directories(${Game_INCLUDE_DIRS} "${PROJECT_SOURCE_DIR}/box2d/include")
 add_executable(${GAME_PROJECT_NAME} ${Game_SOURCES})
@@ -64,14 +78,14 @@ COMMAND ${CMAKE_COMMAND} -E copy_directory
 #copy resources to CWD
 add_custom_command(TARGET _Result POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/resources"
-        "${PROJECT_BINARY_DIR}/resources")
+        "${PROJECT_SOURCE_DIR}/${GAME_RESOURCE_DIR}"
+        "${PROJECT_BINARY_DIR}/${GAME_RESOURCE_DIR}")
 
 
 # Install target
 install(TARGETS ${GAME_PROJECT_NAME} DESTINATION .)
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/cget/bin/" DESTINATION .)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/resources/" DESTINATION resources)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/${GAME_RESOURCE_DIR}/" DESTINATION resources)
 
 # CPack packaging
 include(InstallRequiredSystemLibraries)
